@@ -17,15 +17,29 @@ public class MainActivity extends AppCompatActivity {
     private TextView clock;
     private  int counter;
     private Timer timer;
+    private UIHandler Handler;
+    private CountTask countTask;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         clock =(TextView)findViewById(R.id.clock);
         btnLeft = (Button)findViewById(R.id.btnLeft);
         btnRight =(Button)findViewById(R.id.btnRight);
+        timer = new Timer();
+        Handler =  new UIHandler();
 
+    }
+    @Override
+    public void finish() {
+        timer.purge();
+        timer.cancel();
+        timer = null;
+
+        super.finish();
     }
 
 
@@ -50,10 +64,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void doStart(){
-
+    countTask = new CountTask();
+        timer.schedule(countTask,0,10);
     }
-    private void doStop(){
-
+    private void doStop() {
+        if (countTask != null) {
+            countTask.cancel();
+            countTask = null;
+        }
+        counter = 0 ;
+        Handler.sendEmptyMessage(0);
     }
     private void doLap(){
 
@@ -61,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
     private void doReset(){
 
     }
-    public class UITask extends Handler{
+    public class UIHandler extends Handler{
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
@@ -74,6 +94,8 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void run() {
             counter++;
+            Handler.sendEmptyMessage(0);
         }
+
     }
 }
